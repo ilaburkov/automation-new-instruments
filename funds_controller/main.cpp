@@ -115,4 +115,6 @@ int main(int argc, char** argv) {
   } else {
     LOG_CRIT("{}", result.error());
   }
+  LOG_CRIT("Test finished");
+  return 0;
 }

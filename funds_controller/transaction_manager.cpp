@@ -77,7 +77,7 @@ tl::expected<void, std::string> TransactionManager::transfer(const std::string& 
                                             asset,
                                             transfer_loan_amount);
       if (!result.has_value()) {
-        util::SlackAlerter::IlyaAlerter().send("Failed to transfer loan back. Error: " + result.error());
+        util::SlackAlerter::FundsAlerter().send("Failed to transfer loan back. Error: " + result.error());
         EXPECT_WITH_STRING(false, "Failed to transfer loan back. Error: " << transfer_result.error());
       }
       return transfer_result;

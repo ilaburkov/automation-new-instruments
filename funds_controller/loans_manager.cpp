@@ -163,7 +163,7 @@ tl::expected<void, std::string> LoansManager::borrow(const std::string& subaccou
     LOG_INFO("repaying, because inserting to clickhouse failed");
     auto repay_result = borrow_command->undo();
     if (!repay_result.has_value()) {
-       util::SlackAlerter::IlyaAlerter().send("Failed to write to clickhouse and to repay. Repay error: " + repay_result.error());
+       util::SlackAlerter::FundsAlerter().send("Failed to write to clickhouse and to repay. Repay error: " + repay_result.error());
       return tl::make_unexpected("Failed to write to clickhouse and to repay. Repay error: " + repay_result.error());
     }
     return tl::make_unexpected(std::string{"Failed to write to clickhouse. Exception: "} + error);
@@ -175,7 +175,7 @@ tl::expected<void, std::string> LoansManager::borrow(const std::string& subaccou
   }
   result = createNewLoansRow(subaccount, asset, amount, subaccount, loan_id);
   if (!result.has_value()) {
-    // deleteRowByLoanId(kBorrowsTable, loan_id);
+    deleteRowByLoanId(kBorrowsTable, loan_id);
     return process_error(result.error());
   }
   return {};
@@ -219,7 +219,7 @@ tl::expected<void, std::string> LoansManager::repay(const std::string& subaccoun
     if (!result.has_value()) {
       auto borrow_result = repay_command->undo();
       if (!borrow_result.has_value()) {
-         util::SlackAlerter::IlyaAlerter().send("Failed to repay and to write to clickhouse");
+         util::SlackAlerter::FundsAlerter().send("Failed to repay and to write to clickhouse");
         return tl::make_unexpected("Failed to repay and to write to clickhouse");
       }
       return result;
@@ -235,7 +235,7 @@ tl::expected<void, std::string> LoansManager::repay(const std::string& subaccoun
     if (!result.has_value()) {
       auto borrow_result = repay_command->undo();
       if (!borrow_result.has_value()) {
-         util::SlackAlerter::IlyaAlerter().send("Failed to repay and to write to clickhouse");
+         util::SlackAlerter::FundsAlerter().send("Failed to repay and to write to clickhouse");
         return tl::make_unexpected("Failed to repay and to write to clickhouse");
       }
       return result;
@@ -309,7 +309,7 @@ tl::expected<void, std::string> LoansManager::transfer(const std::string& from_s
     if (!result.has_value()) {
       auto transfer_result = transfer_command->undo();
       if (!transfer_result.has_value()) {
-        util::SlackAlerter::IlyaAlerter().send("Failed to transfer and to write to clickhouse");
+        util::SlackAlerter::FundsAlerter().send("Failed to transfer and to write to clickhouse");
         return tl::make_unexpected("Failed to transfer and to write to clickhouse");
       }
       return result;
@@ -320,7 +320,7 @@ tl::expected<void, std::string> LoansManager::transfer(const std::string& from_s
     if (!result.has_value()) {
       auto transfer_result = transfer_command->undo();
       if (!transfer_result.has_value()) {
-         util::SlackAlerter::IlyaAlerter().send("Failed to transfer and to write to clickhouse");
+         util::SlackAlerter::FundsAlerter().send("Failed to transfer and to write to clickhouse");
         return tl::make_unexpected("Failed to transfer and to write to clickhouse");
       }
       return result;
@@ -330,6 +330,22 @@ tl::expected<void, std::string> LoansManager::transfer(const std::string& from_s
     if (amount == 0) {
       break;
     }
+  }
+  return {};
+}
+
+tl::expected<void, std::string> LoansManager::deleteRowByLoanId(const std::string& table_name, const std::string& loan_id) {
+  std::string query =
+      std::format("ALTER TABLE {} UPDATE status = '{}' WHERE loan_id = '{}'", table_name, kRemoveLoanStatus, id);
+  LOG_DEBUG("{}", query);
+  try {
+    clickhouse_client_->Execute({std::move(query)});
+    query = std::format("ALTER TABLE {} DELETE WHERE loan_id = '{}'", table_name, id);
+    LOG_DEBUG("{}", query);
+    clickhouse_client_->Execute({std::move(query)});
+  } catch (const std::exception& e) {
+    LOG_ERROR("clickhouse error: {}", e.what());
+    return tl::make_unexpected(std::string{"Failed to delete row. Exception: "} + e.what());
   }
   return {};
 }

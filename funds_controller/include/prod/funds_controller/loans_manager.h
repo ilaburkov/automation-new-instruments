@@ -65,7 +65,10 @@ public:
                                            infra::Volume amount);
 
 private:
+  tl::expected<void, std::string> deleteRowByLoanId(const std::string& table_name, const std::string& loan_id);
+
   tl::expected<void, std::string> deleteRowById(const std::string& table_name, const std::string& id);
+
   tl::expected<void, std::string> changeAmountInRowById(const std::string& table_name,
                                                         const std::string& id,
                                                         infra::Volume new_amount);

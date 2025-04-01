@@ -145,7 +145,7 @@ tl::expected<void, std::string> HedgeManager::createHedge(const std::string& sub
     LOG_INFO("Closing hedge, because inserting to clickhouse failed");
     auto command_result = command->undo();
     if (!command_result.has_value()) {
-      util::SlackAlerter::IlyaAlerter().send("Failed to write to clickhouse and closing hedge. Closing hedge error: " +
+      util::SlackAlerter::FundsAlerter().send("Failed to write to clickhouse and closing hedge. Closing hedge error: " +
                                        command_result.error());
       return tl::make_unexpected("Failed to write to clickhouse and closing hedge. Closing hedge error: " +
                                  command_result.error());
