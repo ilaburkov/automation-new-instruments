@@ -44,7 +44,7 @@ tl::expected<void, std::string> TradingBlocker::isTradingBlocked(
           ASSERT_FATAL(false, "Unknown type " + type);
         }
       }
-      // LOG_CRIT("{} {} {} {}", market, symbol, type, status);
+      // LOG_DEBUG("{} {} {} {}", market, symbol, type, status);
     }
   });
   for (const auto& instrument_description : instruments) {
@@ -115,7 +115,7 @@ tl::expected<void, std::string> TradingBlocker::removeBlockRule(const std::strin
       util::lexical_cast<std::string>(market),
       symbol,
       type);
-  LOG_CRIT("{}", query);
+  LOG_DEBUG("{}", query);
   clickhouse_client_->Execute({std::move(query)});
   query =
       std::format("ALTER TABLE {} DELETE WHERE subaccount = '{}' and market = '{}' and symbol = '{}' and type = '{}'",
@@ -124,7 +124,7 @@ tl::expected<void, std::string> TradingBlocker::removeBlockRule(const std::strin
                   util::lexical_cast<std::string>(market),
                   symbol,
                   type);
-  LOG_CRIT("{}", query);
+  LOG_DEBUG("{}", query);
   clickhouse_client_->Execute({std::move(query)});
   return {};
 }

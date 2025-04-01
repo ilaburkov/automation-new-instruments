@@ -81,7 +81,7 @@ tl::expected<std::vector<LoansManager::LoanInfo>, std::string> LoansManager::get
   std::string query = "SELECT id, amount, initial_subaccount, loan_id, type, status FROM " + kLoansInfoTable +
       " WHERE subaccount = '" + subaccount + "' AND asset = '" + asset + "'";
   std::vector<LoanInfo> loans_info;
-  LOG_CRIT("{}", query);
+  LOG_DEBUG("{}", query);
   try {
     clickhouse_client_->Select({std::move(query)}, [&loans_info, &subaccount, &asset](const clickhouse::Block& block) {
       for (size_t i = 0; i < block.GetRowCount(); ++i) {
@@ -114,7 +114,7 @@ tl::expected<LoansManager::BorrowInfo, std::string> LoansManager::getBorrowInfo(
   std::string query = "SELECT id, subaccount, asset, amount, open_amount_usd, loan_id, status FROM " + kBorrowsTable +
       " WHERE loan_id = '" + loan_id + "'";
   BorrowInfo borrow_info;
-  LOG_CRIT("{}", query);
+  LOG_DEBUG("{}", query);
   try {
     clickhouse_client_->Select({std::move(query)}, [&borrow_info](const clickhouse::Block& block) {
       ASSERT_FATAL(block.GetRowCount() <= 1, "Expected only one row");

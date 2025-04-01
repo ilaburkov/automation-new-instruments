@@ -37,7 +37,7 @@ tl::expected<std::vector<HedgeManager::HedgeInfo>, std::string> HedgeManager::ge
   std::string query = "SELECT id, amount, initial_subaccount, hedge_id, status FROM " + kHedgeInfoTable +
       " WHERE subaccount = '" + subaccount + "' AND asset = '" + asset + "'";
   std::vector<HedgeInfo> hedges_info;
-  LOG_CRIT("{}", query);
+  LOG_DEBUG("{}", query);
   try {
     clickhouse_client_->Select({std::move(query)}, [&hedges_info, &subaccount, &asset](const clickhouse::Block& block) {
       for (size_t i = 0; i < block.GetRowCount(); ++i) {
@@ -67,7 +67,7 @@ tl::expected<HedgeManager::FuturesHedge, std::string> HedgeManager::getFuturesHe
   std::string query = "SELECT id, subaccount, market, pair, crypto_eq_amount, open_amount_usd, hedge_id, status FROM " +
       kHedgeTable + " WHERE hedge_id = '" + hedge_id + "'";
   FuturesHedge futures_hedge;
-  LOG_CRIT("{}", query);
+  LOG_DEBUG("{}", query);
   try {
     clickhouse_client_->Select({std::move(query)}, [&futures_hedge](const clickhouse::Block& block) {
       ASSERT_FATAL(block.GetRowCount() <= 1, "Expected only one row");

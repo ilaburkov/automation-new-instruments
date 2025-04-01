@@ -49,16 +49,6 @@ public:
                                               const std::string& asset,
                                               infra::Volume amount);
 
-  // tl::expected<void, std::string> closeHedge(const std::string& subaccount, infra::Exchange exchange, const
-  // std::string& asset, infra::Volume amount);
-
-  // tl::expected<void, std::string> transfer(const std::string& from_subaccount,
-  //                                          infra::Exchange from_subaccount_exchange,
-  //                                          const std::string& to_subaccount,
-  //                                          infra::Exchange to_subaccount_exchange,
-  //                                          const std::string& asset,
-  //                                          infra::Volume amount);
-
 private:
   tl::expected<void, std::string> deleteRowById(const std::string& table_name, const std::string& id);
   tl::expected<void, std::string> changeAmountInRowById(const std::string& table_name,
