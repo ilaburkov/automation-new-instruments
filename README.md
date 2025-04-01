@@ -39,7 +39,7 @@ CREATE TABLE TRANSACTIONS_v2 (
 ) ENGINE = MergeTree()
 ORDER BY (timestamp);
 ```
-Базовый пример таблиц. Пример с реальными данными, есть в отчете
+Базовый пример таблиц. Небольшой пример с реальными данными, есть в отчете
 <img width="1203" alt="Screenshot 2025-04-01 at 23 14 18" src="https://github.com/user-attachments/assets/fa23d6cd-7632-4bd4-9644-99d7e0d71edc" />
 
 
