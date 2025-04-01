@@ -27,13 +27,13 @@ ORDER BY (subaccount, loan_id, asset);
 CREATE TABLE TRANSACTIONS_v1 (
     id UUID DEFAULT generateUUIDv4(),
     timestamp DateTime64,
-    from_subaccount String,
-    from_wallet String,
-    to_subaccount String,
-    to_wallet String,
+    from_subaccount LowCardinality(String),
+    from_wallet LowCardinality(String),
+    to_subaccount LowCardinality(String),
+    to_wallet LowCardinality(String),
     asset String,
     amount Decimal(21, 12),
-    type String,
+    type LowCardinality(String),
     inner_id String,
     status String,
 ) ENGINE = MergeTree()
