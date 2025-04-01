@@ -59,26 +59,15 @@ class Market(str, Enum):
         return exchange[self]
 
     def endpoint_url(self: Self) -> str:
-        # endpoints = {
-        #     Market.BinanceDelivery: "https://dapi.binance.com/dapi/v1",
-        #     Market.BinanceFutures: "https://fapi.binance.com/fapi/v1",
-        #     Market.BinanceSpots: "https://api.binance.com/api/v1",
-        #     Market.OkexSpots: "https://www.okx.com/api/v5",
-        #     Market.OkexSwaps: "https://www.okx.com/api/v5",
-        #     Market.BybitFutures: "https://api.bybit.com/v5",
-        #     Market.BybitInverse: "https://api.bybit.com/v5",
-        #     Market.BybitSpots: "https://api.bybit.com/v5"
-        # }
-        # port is for proxy
         endpoints = {
-            Market.BinanceDelivery: "https://dapi.binance.com:6666/dapi/v1",
-            Market.BinanceFutures: "https://fapi.binance.com:5555/fapi/v1",
-            Market.BinanceSpots: "https://api.binance.com:7777/api/v1",
-            Market.OkexSpots: "https://www.okx.com:22222/api/v5",
-            Market.OkexSwaps: "https://www.okx.com:22222/api/v5",
-            Market.BybitFutures: "https://api.bybit.com:55555/v5",
-            Market.BybitInverse: "https://api.bybit.com:55555/v5",
-            Market.BybitSpots: "https://api.bybit.com:55555/v5",
+            Market.BinanceDelivery: "https://dapi.binance.com/dapi/v1",
+            Market.BinanceFutures: "https://fapi.binance.com/fapi/v1",
+            Market.BinanceSpots: "https://api.binance.com/api/v1",
+            Market.OkexSpots: "https://www.okx.com/api/v5",
+            Market.OkexSwaps: "https://www.okx.com/api/v5",
+            Market.BybitFutures: "https://api.bybit.com/v5",
+            Market.BybitInverse: "https://api.bybit.com/v5",
+            Market.BybitSpots: "https://api.bybit.com/v5"
         }
         return endpoints[self]
 
