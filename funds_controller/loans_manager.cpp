@@ -9,6 +9,7 @@
 #include "util/generator/generate_uuid.h"
 #include "util/lexical_cast/lexical_cast.h"
 #include "util/time/time.h"
+#include "util/slack/slack.h"
 
 #include <magic_enum/magic_enum.hpp>
 
@@ -162,7 +163,7 @@ tl::expected<void, std::string> LoansManager::borrow(const std::string& subaccou
     LOG_INFO("repaying, because inserting to clickhouse failed");
     auto repay_result = borrow_command->undo();
     if (!repay_result.has_value()) {
-      // TODO: send alert to slack
+       util::SlackAlerter::IlyaAlerter().send("Failed to write to clickhouse and to repay. Repay error: " + repay_result.error());
       return tl::make_unexpected("Failed to write to clickhouse and to repay. Repay error: " + repay_result.error());
     }
     return tl::make_unexpected(std::string{"Failed to write to clickhouse. Exception: "} + error);
@@ -218,7 +219,7 @@ tl::expected<void, std::string> LoansManager::repay(const std::string& subaccoun
     if (!result.has_value()) {
       auto borrow_result = repay_command->undo();
       if (!borrow_result.has_value()) {
-        // TODO: slack alert
+         util::SlackAlerter::IlyaAlerter().send("Failed to repay and to write to clickhouse");
         return tl::make_unexpected("Failed to repay and to write to clickhouse");
       }
       return result;
@@ -234,7 +235,7 @@ tl::expected<void, std::string> LoansManager::repay(const std::string& subaccoun
     if (!result.has_value()) {
       auto borrow_result = repay_command->undo();
       if (!borrow_result.has_value()) {
-        // TODO: slack alert
+         util::SlackAlerter::IlyaAlerter().send("Failed to repay and to write to clickhouse");
         return tl::make_unexpected("Failed to repay and to write to clickhouse");
       }
       return result;
@@ -308,7 +309,7 @@ tl::expected<void, std::string> LoansManager::transfer(const std::string& from_s
     if (!result.has_value()) {
       auto transfer_result = transfer_command->undo();
       if (!transfer_result.has_value()) {
-        // TODO: slack alert
+        util::SlackAlerter::IlyaAlerter().send("Failed to transfer and to write to clickhouse");
         return tl::make_unexpected("Failed to transfer and to write to clickhouse");
       }
       return result;
@@ -319,7 +320,7 @@ tl::expected<void, std::string> LoansManager::transfer(const std::string& from_s
     if (!result.has_value()) {
       auto transfer_result = transfer_command->undo();
       if (!transfer_result.has_value()) {
-        // TODO: slack alert
+         util::SlackAlerter::IlyaAlerter().send("Failed to transfer and to write to clickhouse");
         return tl::make_unexpected("Failed to transfer and to write to clickhouse");
       }
       return result;

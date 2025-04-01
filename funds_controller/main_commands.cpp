@@ -4,6 +4,8 @@
 
 #include "util/assert/assert.h"
 #include "util/error/error.h"
+#include "util/slack/slack.h"
+
 
 namespace funds_controller {
 
@@ -23,7 +25,7 @@ tl::expected<void, std::string> MergeCommands::undo() {
   for (size_t i = executed_commands_count_; i >= 0; --i) {
     auto result = commands_[i]->undo();
     if (!result.has_value()) {
-      // TODO: alert to slack
+      util::SlackAlerter::IlyaAlerter().send("Failed to undo command, command index: " + std::to_string(i));
       EXPECT_WITH_STRING(false, "Failed to undo command");
     }
     ASSERT_FATAL(executed_commands_count_ > 0, "executed_commands_count_ should be always positive");

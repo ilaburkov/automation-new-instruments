@@ -4,6 +4,7 @@
 #include "util/error/error.h"
 #include "util/lexical_cast/lexical_cast.h"
 #include "util/time/time.h"
+#include "util/slack/slack.h"
 
 #include <set>
 
@@ -48,7 +49,7 @@ tl::expected<void, std::string> TradingBlocker::isTradingBlocked(
   });
   for (const auto& instrument_description : instruments) {
     auto quote_asset =
-        std::string{getBaseAndQuoteAssets(instrument_description).second};  // TODO: use instrument->quoteAsset();
+        std::string{getBaseAndQuoteAssets(instrument_description).second};
     EXPECT_WITH_STRING(
         !block_assets[instrument_description.value.market].contains(quote_asset),
         "Trading is blocked for asset " + quote_asset + " instrument " + instrument_description.value.pair);

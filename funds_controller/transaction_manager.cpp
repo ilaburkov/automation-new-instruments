@@ -7,6 +7,7 @@
 #include "util/error/error.h"
 #include "util/lexical_cast/lexical_cast.h"
 #include "util/time/time.h"
+#include "util/slack/slack.h"
 
 #include <set>
 
@@ -76,7 +77,7 @@ tl::expected<void, std::string> TransactionManager::transfer(const std::string& 
                                             asset,
                                             transfer_loan_amount);
       if (!result.has_value()) {
-        // TODO: send alert to slack
+        util::SlackAlerter::IlyaAlerter().send("Failed to transfer loan back. Error: " + result.error());
         EXPECT_WITH_STRING(false, "Failed to transfer loan back. Error: " << transfer_result.error());
       }
       return transfer_result;

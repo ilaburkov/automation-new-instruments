@@ -10,6 +10,7 @@
 #include "util/generator/generate_uuid.h"
 #include "util/lexical_cast/lexical_cast.h"
 #include "util/time/time.h"
+#include "util/slack/slack.h"
 
 #include <magic_enum/magic_enum.hpp>
 
@@ -144,7 +145,8 @@ tl::expected<void, std::string> HedgeManager::createHedge(const std::string& sub
     LOG_INFO("Closing hedge, because inserting to clickhouse failed");
     auto command_result = command->undo();
     if (!command_result.has_value()) {
-      // TODO: send alert to slack
+      util::SlackAlerter::IlyaAlerter().send("Failed to write to clickhouse and closing hedge. Closing hedge error: " +
+                                       command_result.error());
       return tl::make_unexpected("Failed to write to clickhouse and closing hedge. Closing hedge error: " +
                                  command_result.error());
     }
@@ -166,92 +168,6 @@ tl::expected<void, std::string> HedgeManager::createHedge(const std::string& sub
   }
   return {};
 }
-
-// tl::expected<void, std::string> closeHedge(const std::string& subaccount, infra::Market market, const std::string&
-// pair, infra::Volume amount);
-
-// tl::expected<void, std::string> LoansManager::transfer(const std::string& from_subaccount,
-//                                                        infra::Exchange from_subaccount_exchange,
-//                                                        const std::string& to_subaccount,
-//                                                        infra::Exchange to_subaccount_exchange,
-//                                                        const std::string& asset,
-//                                                        infra::Volume amount) {
-//   EXPECT_WITH_STRING(amount > 0, "Amount should be positive");
-//   LOG_INFO("Transferring {} {} {} {} {}",
-//            from_subaccount,
-//            from_subaccount_exchange,
-//            to_subaccount,
-//            to_subaccount_exchange,
-//            amount);
-//   auto make_transfer_command = [&](infra::Volume transfer_amount) -> std::unique_ptr<ICommand> {
-//     if (from_subaccount_exchange == to_subaccount_exchange) {
-//       return std::make_unique<TransferCryptoCommand>(from_subaccount,
-//                                                      infra::Wallet::marginWallet(from_subaccount_exchange),
-//                                                      to_subaccount,
-//                                                      infra::Wallet::marginWallet(to_subaccount_exchange),
-//                                                      asset,
-//                                                      transfer_amount);
-//     }
-
-//     std::unique_ptr<ICommand> sell_command = std::make_unique<SendMarketCommand>(
-//         from_subaccount,
-//         transfer::CryptoTransfer({from_subaccount_exchange}).getSpotInstrumentByAsset(asset,
-//         from_subaccount_exchange), -transfer_amount);
-//     std::unique_ptr<ICommand> buy_command = std::make_unique<SendMarketCommand>(
-//         to_subaccount,
-//         transfer::CryptoTransfer({from_subaccount_exchange}).getSpotInstrumentByAsset(asset, to_subaccount_exchange),
-//         transfer_amount);
-//     std::vector<std::unique_ptr<ICommand>> commands;
-//     commands.push_back(std::move(sell_command));
-//     commands.push_back(std::move(buy_command));
-//     return std::make_unique<MergeCommands>(std::move(commands));
-//   };
-//   auto loans_info = getLoansInfo(from_subaccount, asset);
-//   PROPAGATE_ERROR(loans_info);
-//   infra::Volume total_loan_amount_on_account;
-//   for (const auto& loan_info : *loans_info) {
-//     total_loan_amount_on_account += loan_info.amount;
-//   }
-//   EXPECT_WITH_STRING(total_loan_amount_on_account >= amount, "Not enough borrowed amount to repay");
-//   for (const auto& loan_info : *loans_info) {
-//     infra::Volume transfer_amount = util::decimal::min(loan_info.amount, amount);
-//     std::unique_ptr<ICommand> transfer_command = make_transfer_command(transfer_amount);
-//     auto repay_result = transfer_command->execute();
-//     PROPAGATE_ERROR(repay_result);
-
-//     auto result = [&]() {
-//       if (loan_info.amount == transfer_amount) {
-//         return deleteRowById(kLoansInfoTable, loan_info.id);
-//       }
-//       return changeAmountInRowById(kLoansInfoTable, loan_info.id, loan_info.amount - transfer_amount);
-//     }();
-//     if (!result.has_value()) {
-//       auto transfer_result = transfer_command->undo();
-//       if (!transfer_result.has_value()) {
-//         // TODO: slack alert
-//         return tl::make_unexpected("Failed to transfer and to write to clickhouse");
-//       }
-//       return result;
-//     }
-
-//     result = createNewLoansRow(to_subaccount, asset, transfer_amount, loan_info.initial_account, loan_info.loan_id);
-
-//     if (!result.has_value()) {
-//       auto transfer_result = transfer_command->undo();
-//       if (!transfer_result.has_value()) {
-//         // TODO: slack alert
-//         return tl::make_unexpected("Failed to transfer and to write to clickhouse");
-//       }
-//       return result;
-//     }
-
-//     amount -= transfer_amount;
-//     if (amount == 0) {
-//       break;
-//     }
-//   }
-//   return {};
-// }
 
 tl::expected<void, std::string> HedgeManager::deleteRowById(const std::string& table_name, const std::string& id) {
   std::string query = std::format("ALTER TABLE {} UPDATE status = '{}' WHERE id = '{}'", table_name, kRemoveStatus, id);
