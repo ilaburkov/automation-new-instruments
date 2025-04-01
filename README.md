@@ -24,7 +24,7 @@ CREATE TABLE LOANS_INFO_v2 (
 ) ENGINE = SummingMergeTree(amount)
 ORDER BY (subaccount, loan_id, asset); 
 
-CREATE TABLE TRANSACTIONS_v1 (
+CREATE TABLE TRANSACTIONS_v2 (
     id UUID DEFAULT generateUUIDv4(),
     timestamp DateTime64,
     from_subaccount LowCardinality(String),
@@ -35,7 +35,7 @@ CREATE TABLE TRANSACTIONS_v1 (
     amount Decimal(21, 12),
     type LowCardinality(String),
     inner_id String,
-    status String,
+    status LowCardinality(String),
 ) ENGINE = MergeTree()
 ORDER BY (timestamp);
 ```
