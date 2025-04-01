@@ -13,6 +13,7 @@ import config
 
 class ListingsArgs(Tap):
     channel: str
+    test: bool = False
 
 
 class Info(BaseModel):
@@ -62,7 +63,8 @@ def main():
         lists.append((info, old))
 
     # Initialize the Slack WebClient
-    client = WebClient(token=slack_token)
+    if (not args.test):
+        client = WebClient(token=slack_token)
 
     not_updates = True
 
@@ -71,8 +73,9 @@ def main():
         if exchange is not None:
             msg = f"{exchange.slack_emoji()} {msg}"
         try:
-            response = client.chat_postMessage(channel=args.channel, text=msg)
-            print("Message sent not succesfully:", response)
+            if (not args.test):
+                response = client.chat_postMessage(channel=args.channel, text=msg)
+                print("Message sent not succesfully:", response)
         except SlackApiError as e:
             print(f"Error sending message: {e.response['error']}")
             not_updates = False
@@ -113,7 +116,8 @@ def main():
             new.save()
         try:
             text = f"Last updated at {now.strftime('%Y-%m-%d %H:%M:%S UTC')}"
-            client.chat_postMessage(channel=args.channel, text=text)
+            if (not args.test):
+                client.chat_postMessage(channel=args.channel, text=text)
         except SlackApiError as e:
             print(f"Error sending message: {e.response['error']}")
 
